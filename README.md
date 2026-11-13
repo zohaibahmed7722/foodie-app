@@ -1,6 +1,19 @@
 # Foodie App 🍲
 
-A complete, modern React Native / Expo Recipe Application created for the Coursera Peer-Graded Assignment. Fully compatible with **Snack Expo** and **Expo Go**.
+A complete, modern React Native / Expo Recipe Application created for the Coursera Peer-Graded Assignment. Fully compatible with **Expo Go (SDK 54)** and **Snack Expo**.
+
+---
+
+## 📲 Quick Scan for Expo Go (SDK 54)
+
+Scan this QR code with your camera or the **Expo Go** app on your phone:
+
+<div align="center">
+  <img src="./expo_qr.png" width="280" alt="Expo Go 54 QR Code" />
+  <p><b>Expo Go URL:</b> <code>exp://192.168.0.185:8081</code></p>
+</div>
+
+*(Make sure your phone and laptop are connected to the same Wi-Fi network. You can also paste <code>exp://192.168.0.185:8081</code> manually in Expo Go under "Enter URL manually".)*
 
 ---
 
@@ -41,3 +54,4 @@ A complete, modern React Native / Expo Recipe Application created for the Course
 - **Favorites System**: Interactive heart toggle with counter badge and dedicated Favorites tab.
 - **My Food & Kitchen Hub**: Manage user-created recipes with full CRUD (Create, Read, Update, Delete) capabilities.
 - **Responsive Layout**: Designed for mobile (iOS/Android) and Snack Expo web simulator.
+
