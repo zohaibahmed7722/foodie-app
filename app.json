@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Foodie App",
+    "slug": "foodie-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=192&q=80",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "web": {
+      "favicon": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=48&q=80"
+    }
+  }
+}
