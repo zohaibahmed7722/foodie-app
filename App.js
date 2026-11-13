@@ -13,6 +13,7 @@ import {
   StatusBar,
   FlatList,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -218,7 +219,7 @@ const INITIAL_RECIPES = [
       '1.5 tsp ceremonial grade matcha powder',
       '2 oz warm water (175°F)',
       '1 cup oat milk or whole milk',
-      '1-2 tbsp honey or vanilla syrup',
+      '1-2 tbsp honey or practical sweetener',
       '1 cup ice cubes',
     ],
     instructions: [
@@ -284,6 +285,10 @@ const INITIAL_RECIPES = [
 ];
 
 export default function App() {
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width >= 680;
+  const isNarrowScreen = width < 380;
+
   // Navigation & View state
   const [currentTab, setCurrentTab] = useState('home'); // 'home', 'favorites', 'my_food'
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -507,109 +512,111 @@ export default function App() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="dark-content" />
-        {/* Detail Top Header with Functional Back Button (Rubric 12) */}
-        <View style={styles.detailHeaderBar}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleBackFromDetail}
-            accessibilityLabel="Back button"
-          >
-            <Ionicons name="arrow-back" size={24} color="#1E293B" />
-            <Text style={styles.backButtonText}>Back</Text>
-          </TouchableOpacity>
+        <View style={[styles.responsiveContainer, isLargeScreen && styles.responsiveContainerDesktop]}>
+          {/* Detail Top Header with Functional Back Button (Rubric 12) */}
+          <View style={styles.detailHeaderBar}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleBackFromDetail}
+              accessibilityLabel="Back button"
+            >
+              <Ionicons name="arrow-back" size={24} color="#1E293B" />
+              <Text style={styles.backButtonText}>Back</Text>
+            </TouchableOpacity>
 
-          <Text style={styles.detailHeaderTitle} numberOfLines={1}>
-            Recipe Details
-          </Text>
+            <Text style={styles.detailHeaderTitle} numberOfLines={1}>
+              Recipe Details
+            </Text>
 
-          <TouchableOpacity
-            style={styles.iconCircleButton}
-            onPress={() => toggleFavorite(selectedRecipe.id)}
-            accessibilityLabel="Favorite button"
-          >
-            <Ionicons
-              name={isFav ? 'heart' : 'heart-outline'}
-              size={24}
-              color={isFav ? '#EF4444' : '#64748B'}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView style={styles.detailScrollView} showsVerticalScrollIndicator={false}>
-          {/* Hero Image */}
-          <Image source={{ uri: selectedRecipe.image }} style={styles.detailHeroImage} />
-
-          <View style={styles.detailContentContainer}>
-            {/* Title & Category */}
-            <View style={styles.detailTitleRow}>
-              <Text style={styles.detailTitle}>{selectedRecipe.name}</Text>
-              <View style={styles.categoryBadge}>
-                <Text style={styles.categoryBadgeText}>
-                  {selectedRecipe.category.toUpperCase()}
-                </Text>
-              </View>
-            </View>
-
-            {/* Rubric 3: 4 Key Badges (Prep Time, Servings, Calories, Difficulty) */}
-            <View style={styles.statsGrid}>
-              <View style={styles.statCard}>
-                <Ionicons name="time-outline" size={22} color="#F59E0B" />
-                <Text style={styles.statLabel}>Prep Time</Text>
-                <Text style={styles.statValue}>{selectedRecipe.prepTime}</Text>
-              </View>
-
-              <View style={styles.statCard}>
-                <Ionicons name="people-outline" size={22} color="#3B82F6" />
-                <Text style={styles.statLabel}>Servings</Text>
-                <Text style={styles.statValue}>{selectedRecipe.servings}</Text>
-              </View>
-
-              <View style={styles.statCard}>
-                <Ionicons name="flame-outline" size={22} color="#EF4444" />
-                <Text style={styles.statLabel}>Calories</Text>
-                <Text style={styles.statValue}>{selectedRecipe.calories}</Text>
-              </View>
-
-              <View style={styles.statCard}>
-                <Ionicons name="speedometer-outline" size={22} color="#10B981" />
-                <Text style={styles.statLabel}>Difficulty</Text>
-                <Text style={styles.statValue}>{selectedRecipe.difficulty}</Text>
-              </View>
-            </View>
-
-            {/* Rubric 3 & 10: Ingredients List */}
-            <View style={styles.sectionCard}>
-              <View style={styles.sectionHeaderRow}>
-                <Ionicons name="basket-outline" size={20} color="#10B981" />
-                <Text style={styles.sectionTitle}>
-                  Ingredients ({selectedRecipe.ingredients.length})
-                </Text>
-              </View>
-              {selectedRecipe.ingredients.map((ingredient, index) => (
-                <View key={index} style={styles.ingredientRow}>
-                  <View style={styles.bulletPoint} />
-                  <Text style={styles.ingredientText}>{ingredient}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Rubric 3 & 10: Step-by-Step Instructions */}
-            <View style={styles.sectionCard}>
-              <View style={styles.sectionHeaderRow}>
-                <Ionicons name="list-outline" size={20} color="#6366F1" />
-                <Text style={styles.sectionTitle}>Step-by-Step Instructions</Text>
-              </View>
-              {selectedRecipe.instructions.map((step, index) => (
-                <View key={index} style={styles.instructionStepCard}>
-                  <View style={styles.stepNumberBadge}>
-                    <Text style={styles.stepNumberText}>{index + 1}</Text>
-                  </View>
-                  <Text style={styles.instructionText}>{step}</Text>
-                </View>
-              ))}
-            </View>
+            <TouchableOpacity
+              style={styles.iconCircleButton}
+              onPress={() => toggleFavorite(selectedRecipe.id)}
+              accessibilityLabel="Favorite button"
+            >
+              <Ionicons
+                name={isFav ? 'heart' : 'heart-outline'}
+                size={24}
+                color={isFav ? '#EF4444' : '#64748B'}
+              />
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+
+          <ScrollView style={styles.detailScrollView} showsVerticalScrollIndicator={false}>
+            {/* Hero Image with Responsive Aspect Ratio */}
+            <Image source={{ uri: selectedRecipe.image }} style={styles.detailHeroImage} />
+
+            <View style={styles.detailContentContainer}>
+              {/* Title & Category */}
+              <View style={styles.detailTitleRow}>
+                <Text style={styles.detailTitle}>{selectedRecipe.name}</Text>
+                <View style={styles.categoryBadge}>
+                  <Text style={styles.categoryBadgeText}>
+                    {selectedRecipe.category.toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Rubric 3: 4 Key Badges (Responsive Stats Grid) */}
+              <View style={[styles.statsGrid, isNarrowScreen && styles.statsGridNarrow]}>
+                <View style={[styles.statCard, isNarrowScreen && styles.statCardNarrow]}>
+                  <Ionicons name="time-outline" size={20} color="#F59E0B" />
+                  <Text style={styles.statLabel}>Prep Time</Text>
+                  <Text style={styles.statValue}>{selectedRecipe.prepTime}</Text>
+                </View>
+
+                <View style={[styles.statCard, isNarrowScreen && styles.statCardNarrow]}>
+                  <Ionicons name="people-outline" size={20} color="#3B82F6" />
+                  <Text style={styles.statLabel}>Servings</Text>
+                  <Text style={styles.statValue}>{selectedRecipe.servings}</Text>
+                </View>
+
+                <View style={[styles.statCard, isNarrowScreen && styles.statCardNarrow]}>
+                  <Ionicons name="flame-outline" size={20} color="#EF4444" />
+                  <Text style={styles.statLabel}>Calories</Text>
+                  <Text style={styles.statValue}>{selectedRecipe.calories}</Text>
+                </View>
+
+                <View style={[styles.statCard, isNarrowScreen && styles.statCardNarrow]}>
+                  <Ionicons name="speedometer-outline" size={20} color="#10B981" />
+                  <Text style={styles.statLabel}>Difficulty</Text>
+                  <Text style={styles.statValue}>{selectedRecipe.difficulty}</Text>
+                </View>
+              </View>
+
+              {/* Rubric 3 & 10: Ingredients List */}
+              <View style={styles.sectionCard}>
+                <View style={styles.sectionHeaderRow}>
+                  <Ionicons name="basket-outline" size={20} color="#10B981" />
+                  <Text style={styles.sectionTitle}>
+                    Ingredients ({selectedRecipe.ingredients.length})
+                  </Text>
+                </View>
+                {selectedRecipe.ingredients.map((ingredient, index) => (
+                  <View key={index} style={styles.ingredientRow}>
+                    <View style={styles.bulletPoint} />
+                    <Text style={styles.ingredientText}>{ingredient}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Rubric 3 & 10: Step-by-Step Instructions */}
+              <View style={styles.sectionCard}>
+                <View style={styles.sectionHeaderRow}>
+                  <Ionicons name="list-outline" size={20} color="#6366F1" />
+                  <Text style={styles.sectionTitle}>Step-by-Step Instructions</Text>
+                </View>
+                {selectedRecipe.instructions.map((step, index) => (
+                  <View key={index} style={styles.instructionStepCard}>
+                    <View style={styles.stepNumberBadge}>
+                      <Text style={styles.stepNumberText}>{index + 1}</Text>
+                    </View>
+                    <Text style={styles.instructionText}>{step}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        </View>
       </SafeAreaView>
     );
   }
@@ -621,101 +628,177 @@ export default function App() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Main Top Header */}
-      <View style={styles.header}>
-        <View style={styles.brandRow}>
-          <View style={styles.logoBadge}>
-            <Ionicons name="restaurant" size={20} color="#FFFFFF" />
-          </View>
-          <Text style={styles.headerTitle}>Foodie App</Text>
-        </View>
-
-        {/* Search Bar */}
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={18} color="#94A3B8" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search recipes, ingredients..."
-            placeholderTextColor="#94A3B8"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color="#94A3B8" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* Rubric 2 & 7: Horizontal Category Bar (15 items > 10 required) */}
-      <View style={styles.categoryContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryScrollView}
-        >
-          {CATEGORIES.map((cat) => {
-            const isMyFood = cat.id === 'my_food';
-            const isActive = isMyFood
-              ? currentTab === 'my_food'
-              : currentTab === 'home' && selectedCategory === cat.id;
-
-            return (
-              <TouchableOpacity
-                key={cat.id}
-                style={[
-                  styles.categoryPill,
-                  isActive && styles.activeCategoryPill,
-                  isMyFood && styles.myFoodPill,
-                ]}
-                onPress={() => handleCategoryPress(cat.id)}
-              >
-                <Ionicons
-                  name={cat.icon}
-                  size={16}
-                  color={isActive ? '#FFFFFF' : isMyFood ? '#10B981' : '#64748B'}
-                  style={{ marginRight: 6 }}
-                />
-                <Text
-                  style={[
-                    styles.categoryPillText,
-                    isActive && styles.activeCategoryPillText,
-                    isMyFood && !isActive && styles.myFoodPillText,
-                  ]}
-                >
-                  {cat.name}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      </View>
-
-      {/* Body Views based on Active Tab */}
-      <View style={styles.body}>
-        {/* TAB 1: MAIN FEED */}
-        {currentTab === 'home' && (
-          <View style={styles.fullFlex}>
-            <View style={styles.feedInfoRow}>
-              <Text style={styles.feedSectionHeading}>
-                {selectedCategory === 'all'
-                  ? 'All Recipes'
-                  : `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Recipes`}
-              </Text>
-              <Text style={styles.recipeCountText}>
-                {filteredRecipes.length} {filteredRecipes.length === 1 ? 'recipe' : 'recipes'}
-              </Text>
+      {/* Main Responsive Container */}
+      <View style={[styles.responsiveContainer, isLargeScreen && styles.responsiveContainerDesktop]}>
+        {/* Main Top Header */}
+        <View style={styles.header}>
+          <View style={styles.brandRow}>
+            <View style={styles.logoBadge}>
+              <Ionicons name="restaurant" size={20} color="#FFFFFF" />
             </View>
+            <Text style={styles.headerTitle}>Foodie App</Text>
+          </View>
 
-            <FlatList
-              data={filteredRecipes}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-              renderItem={({ item }) => {
-                const isFav = favorites.includes(item.id);
-                return (
+          {/* Search Bar */}
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={18} color="#94A3B8" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search recipes, ingredients..."
+              placeholderTextColor="#94A3B8"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={18} color="#94A3B8" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Rubric 2 & 7: Horizontal Category Bar (15 items > 10 required) */}
+        <View style={styles.categoryContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryScrollView}
+          >
+            {CATEGORIES.map((cat) => {
+              const isMyFood = cat.id === 'my_food';
+              const isActive = isMyFood
+                ? currentTab === 'my_food'
+                : currentTab === 'home' && selectedCategory === cat.id;
+
+              return (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.categoryPill,
+                    isActive && styles.activeCategoryPill,
+                    isMyFood && styles.myFoodPill,
+                  ]}
+                  onPress={() => handleCategoryPress(cat.id)}
+                >
+                  <Ionicons
+                    name={cat.icon}
+                    size={16}
+                    color={isActive ? '#FFFFFF' : isMyFood ? '#10B981' : '#64748B'}
+                    style={{ marginRight: 6 }}
+                  />
+                  <Text
+                    style={[
+                      styles.categoryPillText,
+                      isActive && styles.activeCategoryPillText,
+                      isMyFood && !isActive && styles.myFoodPillText,
+                    ]}
+                  >
+                    {cat.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* Body Views based on Active Tab */}
+        <View style={styles.body}>
+          {/* TAB 1: MAIN FEED */}
+          {currentTab === 'home' && (
+            <View style={styles.fullFlex}>
+              <View style={styles.feedInfoRow}>
+                <Text style={styles.feedSectionHeading}>
+                  {selectedCategory === 'all'
+                    ? 'All Recipes'
+                    : `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Recipes`}
+                </Text>
+                <Text style={styles.recipeCountText}>
+                  {filteredRecipes.length} {filteredRecipes.length === 1 ? 'recipe' : 'recipes'}
+                </Text>
+              </View>
+
+              <FlatList
+                data={filteredRecipes}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                renderItem={({ item }) => {
+                  const isFav = favorites.includes(item.id);
+                  return (
+                    <TouchableOpacity
+                      style={styles.recipeCard}
+                      activeOpacity={0.9}
+                      onPress={() => handleSelectRecipe(item)}
+                    >
+                      <Image source={{ uri: item.image }} style={styles.recipeCardImage} />
+
+                      {/* Rubric 5: Heart icon to favorite / unfavorite */}
+                      <TouchableOpacity
+                        style={styles.cardHeartButton}
+                        onPress={() => toggleFavorite(item.id)}
+                        accessibilityLabel="Favorite recipe"
+                      >
+                        <Ionicons
+                          name={isFav ? 'heart' : 'heart-outline'}
+                          size={22}
+                          color={isFav ? '#EF4444' : '#64748B'}
+                        />
+                      </TouchableOpacity>
+
+                      <View style={styles.recipeCardBody}>
+                        <View style={styles.cardCategoryPill}>
+                          <Text style={styles.cardCategoryText}>{item.category.toUpperCase()}</Text>
+                        </View>
+                        <Text style={styles.recipeCardTitle}>{item.name}</Text>
+
+                        {/* Summary details */}
+                        <View style={styles.cardMetaRow}>
+                          <View style={styles.metaItem}>
+                            <Ionicons name="time-outline" size={14} color="#64748B" />
+                            <Text style={styles.metaItemText}>{item.prepTime}</Text>
+                          </View>
+                          <View style={styles.metaItem}>
+                            <Ionicons name="flame-outline" size={14} color="#64748B" />
+                            <Text style={styles.metaItemText}>{item.calories}</Text>
+                          </View>
+                          <View style={styles.metaItem}>
+                            <Ionicons name="speedometer-outline" size={14} color="#64748B" />
+                            <Text style={styles.metaItemText}>{item.difficulty}</Text>
+                          </View>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }}
+                ListEmptyComponent={
+                  <View style={styles.emptyStateContainer}>
+                    <Ionicons name="restaurant-outline" size={48} color="#CBD5E1" />
+                    <Text style={styles.emptyStateTitle}>No Recipes Found</Text>
+                    <Text style={styles.emptyStateSubtitle}>
+                      Try selecting another category or clear your search term.
+                    </Text>
+                  </View>
+                }
+              />
+            </View>
+          )}
+
+          {/* TAB 2: FAVORITES SECTION (Rubric 6) */}
+          {currentTab === 'favorites' && (
+            <View style={styles.fullFlex}>
+              <View style={styles.feedInfoRow}>
+                <Text style={styles.feedSectionHeading}>Saved Favorites ❤️</Text>
+                <Text style={styles.recipeCountText}>
+                  {favoriteRecipes.length} {favoriteRecipes.length === 1 ? 'item' : 'items'}
+                </Text>
+              </View>
+
+              <FlatList
+                data={favoriteRecipes}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.recipeCard}
                     activeOpacity={0.9}
@@ -723,418 +806,342 @@ export default function App() {
                   >
                     <Image source={{ uri: item.image }} style={styles.recipeCardImage} />
 
-                    {/* Rubric 5: Heart icon to favorite / unfavorite */}
                     <TouchableOpacity
                       style={styles.cardHeartButton}
                       onPress={() => toggleFavorite(item.id)}
-                      accessibilityLabel="Favorite recipe"
                     >
-                      <Ionicons
-                        name={isFav ? 'heart' : 'heart-outline'}
-                        size={22}
-                        color={isFav ? '#EF4444' : '#64748B'}
-                      />
+                      <Ionicons name="heart" size={22} color="#EF4444" />
                     </TouchableOpacity>
 
                     <View style={styles.recipeCardBody}>
-                      <View style={styles.cardCategoryPill}>
-                        <Text style={styles.cardCategoryText}>{item.category.toUpperCase()}</Text>
-                      </View>
                       <Text style={styles.recipeCardTitle}>{item.name}</Text>
-
-                      {/* Summary details */}
                       <View style={styles.cardMetaRow}>
                         <View style={styles.metaItem}>
                           <Ionicons name="time-outline" size={14} color="#64748B" />
                           <Text style={styles.metaItemText}>{item.prepTime}</Text>
                         </View>
                         <View style={styles.metaItem}>
-                          <Ionicons name="flame-outline" size={14} color="#64748B" />
-                          <Text style={styles.metaItemText}>{item.calories}</Text>
-                        </View>
-                        <View style={styles.metaItem}>
-                          <Ionicons name="speedometer-outline" size={14} color="#64748B" />
-                          <Text style={styles.metaItemText}>{item.difficulty}</Text>
+                          <Ionicons name="people-outline" size={14} color="#64748B" />
+                          <Text style={styles.metaItemText}>{item.servings}</Text>
                         </View>
                       </View>
                     </View>
                   </TouchableOpacity>
-                );
-              }}
-              ListEmptyComponent={
-                <View style={styles.emptyStateContainer}>
-                  <Ionicons name="restaurant-outline" size={48} color="#CBD5E1" />
-                  <Text style={styles.emptyStateTitle}>No Recipes Found</Text>
-                  <Text style={styles.emptyStateSubtitle}>
-                    Try selecting another category or clear your search term.
-                  </Text>
-                </View>
-              }
-            />
-          </View>
-        )}
-
-        {/* TAB 2: FAVORITES SECTION (Rubric 6) */}
-        {currentTab === 'favorites' && (
-          <View style={styles.fullFlex}>
-            <View style={styles.feedInfoRow}>
-              <Text style={styles.feedSectionHeading}>Saved Favorites ❤️</Text>
-              <Text style={styles.recipeCountText}>
-                {favoriteRecipes.length} {favoriteRecipes.length === 1 ? 'item' : 'items'}
-              </Text>
-            </View>
-
-            <FlatList
-              data={favoriteRecipes}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.recipeCard}
-                  activeOpacity={0.9}
-                  onPress={() => handleSelectRecipe(item)}
-                >
-                  <Image source={{ uri: item.image }} style={styles.recipeCardImage} />
-
-                  <TouchableOpacity
-                    style={styles.cardHeartButton}
-                    onPress={() => toggleFavorite(item.id)}
-                  >
-                    <Ionicons name="heart" size={22} color="#EF4444" />
-                  </TouchableOpacity>
-
-                  <View style={styles.recipeCardBody}>
-                    <Text style={styles.recipeCardTitle}>{item.name}</Text>
-                    <View style={styles.cardMetaRow}>
-                      <View style={styles.metaItem}>
-                        <Ionicons name="time-outline" size={14} color="#64748B" />
-                        <Text style={styles.metaItemText}>{item.prepTime}</Text>
-                      </View>
-                      <View style={styles.metaItem}>
-                        <Ionicons name="people-outline" size={14} color="#64748B" />
-                        <Text style={styles.metaItemText}>{item.servings}</Text>
-                      </View>
-                    </View>
+                )}
+                ListEmptyComponent={
+                  <View style={styles.emptyStateContainer}>
+                    <Ionicons name="heart-dislike-outline" size={48} color="#CBD5E1" />
+                    <Text style={styles.emptyStateTitle}>No Favorites Yet</Text>
+                    <Text style={styles.emptyStateSubtitle}>
+                      Tap the heart icon on any recipe in the main feed to save your favorites!
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.primaryActionButton}
+                      onPress={() => setCurrentTab('home')}
+                    >
+                      <Text style={styles.primaryActionButtonText}>Explore Recipes</Text>
+                    </TouchableOpacity>
                   </View>
-                </TouchableOpacity>
-              )}
-              ListEmptyComponent={
-                <View style={styles.emptyStateContainer}>
-                  <Ionicons name="heart-dislike-outline" size={48} color="#CBD5E1" />
-                  <Text style={styles.emptyStateTitle}>No Favorites Yet</Text>
-                  <Text style={styles.emptyStateSubtitle}>
-                    Tap the heart icon on any recipe in the main feed to save your favorites!
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.primaryActionButton}
-                    onPress={() => setCurrentTab('home')}
-                  >
-                    <Text style={styles.primaryActionButtonText}>Explore Recipes</Text>
-                  </TouchableOpacity>
-                </View>
-              }
-            />
-          </View>
-        )}
+                }
+              />
+            </View>
+          )}
 
-        {/* TAB 3: MY FOOD / MY RECIPES (Rubric 7, 8, 9, 10, 11) */}
-        {currentTab === 'my_food' && (
-          <View style={styles.fullFlex}>
-            <View style={styles.myFoodHeaderCard}>
-              <View>
-                <Text style={styles.myFoodHeaderTitle}>My Kitchen & Food</Text>
-                <Text style={styles.myFoodHeaderSubtitle}>
-                  Create, customize, and manage your culinary creations.
+          {/* TAB 3: MY FOOD / MY RECIPES (Rubric 7, 8, 9, 10, 11) */}
+          {currentTab === 'my_food' && (
+            <View style={styles.fullFlex}>
+              <View style={styles.myFoodHeaderCard}>
+                <View>
+                  <Text style={styles.myFoodHeaderTitle}>My Kitchen & Food</Text>
+                  <Text style={styles.myFoodHeaderSubtitle}>
+                    Create, customize, and manage your culinary creations.
+                  </Text>
+                </View>
+
+                {/* Rubric 7 & 8: "+ Add New Recipe" Button */}
+                <TouchableOpacity
+                  style={styles.addNewRecipeButton}
+                  onPress={openAddRecipeModal}
+                  accessibilityLabel="Add New Recipe"
+                >
+                  <Ionicons name="add-circle" size={20} color="#FFFFFF" />
+                  <Text style={styles.addNewRecipeButtonText}>Add New Recipe</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.feedInfoRow}>
+                <Text style={styles.feedSectionHeading}>My Recipes</Text>
+                <Text style={styles.recipeCountText}>
+                  {myRecipes.length} {myRecipes.length === 1 ? 'recipe' : 'recipes'}
                 </Text>
               </View>
 
-              {/* Rubric 7 & 8: "+ Add New Recipe" Button */}
-              <TouchableOpacity
-                style={styles.addNewRecipeButton}
-                onPress={openAddRecipeModal}
-                accessibilityLabel="Add New Recipe"
-              >
-                <Ionicons name="add-circle" size={20} color="#FFFFFF" />
-                <Text style={styles.addNewRecipeButtonText}>Add New Recipe</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.feedInfoRow}>
-              <Text style={styles.feedSectionHeading}>My Recipes</Text>
-              <Text style={styles.recipeCountText}>
-                {myRecipes.length} {myRecipes.length === 1 ? 'recipe' : 'recipes'}
-              </Text>
-            </View>
-
-            {/* Rubric 9, 10, 11: My Recipes List with Details on click, and Edit & Delete buttons */}
-            <FlatList
-              data={myRecipes}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-              renderItem={({ item }) => (
-                <View style={styles.myRecipeCard}>
-                  {/* Click to open details (Rubric 10) */}
-                  <TouchableOpacity
-                    style={styles.myRecipeCardTop}
-                    onPress={() => handleSelectRecipe(item)}
-                    activeOpacity={0.8}
-                  >
-                    <Image source={{ uri: item.image }} style={styles.myRecipeImage} />
-                    <View style={styles.myRecipeCardInfo}>
-                      <View style={styles.cardCategoryPill}>
-                        <Text style={styles.cardCategoryText}>{item.category.toUpperCase()}</Text>
+              {/* Rubric 9, 10, 11: My Recipes List with Details on click, and Edit & Delete buttons */}
+              <FlatList
+                data={myRecipes}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                renderItem={({ item }) => (
+                  <View style={styles.myRecipeCard}>
+                    {/* Click to open details (Rubric 10) */}
+                    <TouchableOpacity
+                      style={styles.myRecipeCardTop}
+                      onPress={() => handleSelectRecipe(item)}
+                      activeOpacity={0.8}
+                    >
+                      <Image source={{ uri: item.image }} style={styles.myRecipeImage} />
+                      <View style={styles.myRecipeCardInfo}>
+                        <View style={styles.cardCategoryPill}>
+                          <Text style={styles.cardCategoryText}>{item.category.toUpperCase()}</Text>
+                        </View>
+                        <Text style={styles.myRecipeName}>{item.name}</Text>
+                        <Text style={styles.myRecipeMeta}>
+                          {item.prepTime} • {item.calories}
+                        </Text>
                       </View>
-                      <Text style={styles.myRecipeName}>{item.name}</Text>
-                      <Text style={styles.myRecipeMeta}>
-                        {item.prepTime} • {item.calories}
-                      </Text>
+                    </TouchableOpacity>
+
+                    {/* Rubric 11: Edit and Delete Buttons */}
+                    <View style={styles.myRecipeActionsRow}>
+                      <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => openEditRecipeModal(item)}
+                        accessibilityLabel="Edit Recipe"
+                      >
+                        <Ionicons name="create-outline" size={16} color="#3B82F6" />
+                        <Text style={styles.editButtonText}>Edit</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => handleDeleteRecipe(item.id, item.name)}
+                        accessibilityLabel="Delete Recipe"
+                      >
+                        <Ionicons name="trash-outline" size={16} color="#EF4444" />
+                        <Text style={styles.deleteButtonText}>Delete</Text>
+                      </TouchableOpacity>
                     </View>
-                  </TouchableOpacity>
-
-                  {/* Rubric 11: Edit and Delete Buttons */}
-                  <View style={styles.myRecipeActionsRow}>
-                    <TouchableOpacity
-                      style={styles.editButton}
-                      onPress={() => openEditRecipeModal(item)}
-                      accessibilityLabel="Edit Recipe"
-                    >
-                      <Ionicons name="create-outline" size={16} color="#3B82F6" />
-                      <Text style={styles.editButtonText}>Edit</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => handleDeleteRecipe(item.id, item.name)}
-                      accessibilityLabel="Delete Recipe"
-                    >
-                      <Ionicons name="trash-outline" size={16} color="#EF4444" />
-                      <Text style={styles.deleteButtonText}>Delete</Text>
-                    </TouchableOpacity>
                   </View>
+                )}
+                ListEmptyComponent={
+                  <View style={styles.emptyStateContainer}>
+                    <Ionicons name="book-outline" size={48} color="#CBD5E1" />
+                    <Text style={styles.emptyStateTitle}>No Personal Recipes</Text>
+                    <Text style={styles.emptyStateSubtitle}>
+                      You haven't added any custom recipes yet. Tap "+ Add New Recipe" above!
+                    </Text>
+                  </View>
+                }
+              />
+            </View>
+          )}
+        </View>
+
+        {/* Bottom Navigation Bar */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setCurrentTab('home')}
+          >
+            <Ionicons
+              name={currentTab === 'home' ? 'restaurant' : 'restaurant-outline'}
+              size={22}
+              color={currentTab === 'home' ? '#10B981' : '#94A3B8'}
+            />
+            <Text style={[styles.navItemText, currentTab === 'home' && styles.activeNavItemText]}>
+              Feed
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setCurrentTab('favorites')}
+          >
+            <View>
+              <Ionicons
+                name={currentTab === 'favorites' ? 'heart' : 'heart-outline'}
+                size={22}
+                color={currentTab === 'favorites' ? '#EF4444' : '#94A3B8'}
+              />
+              {favorites.length > 0 && (
+                <View style={styles.navBadge}>
+                  <Text style={styles.navBadgeText}>{favorites.length}</Text>
                 </View>
               )}
-              ListEmptyComponent={
-                <View style={styles.emptyStateContainer}>
-                  <Ionicons name="book-outline" size={48} color="#CBD5E1" />
-                  <Text style={styles.emptyStateTitle}>No Personal Recipes</Text>
-                  <Text style={styles.emptyStateSubtitle}>
-                    You haven't added any custom recipes yet. Tap "+ Add New Recipe" above!
-                  </Text>
-                </View>
-              }
-            />
-          </View>
-        )}
-      </View>
+            </View>
+            <Text
+              style={[styles.navItemText, currentTab === 'favorites' && styles.activeNavItemText]}
+            >
+              Favorites
+            </Text>
+          </TouchableOpacity>
 
-      {/* Bottom Navigation Bar */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => setCurrentTab('home')}
-        >
-          <Ionicons
-            name={currentTab === 'home' ? 'restaurant' : 'restaurant-outline'}
-            size={22}
-            color={currentTab === 'home' ? '#10B981' : '#94A3B8'}
-          />
-          <Text style={[styles.navItemText, currentTab === 'home' && styles.activeNavItemText]}>
-            Feed
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => setCurrentTab('favorites')}
-        >
-          <View>
-            <Ionicons
-              name={currentTab === 'favorites' ? 'heart' : 'heart-outline'}
-              size={22}
-              color={currentTab === 'favorites' ? '#EF4444' : '#94A3B8'}
-            />
-            {favorites.length > 0 && (
-              <View style={styles.navBadge}>
-                <Text style={styles.navBadgeText}>{favorites.length}</Text>
-              </View>
-            )}
-          </View>
-          <Text
-            style={[styles.navItemText, currentTab === 'favorites' && styles.activeNavItemText]}
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setCurrentTab('my_food')}
           >
-            Favorites
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => setCurrentTab('my_food')}
-        >
-          <Ionicons
-            name={currentTab === 'my_food' ? 'person-circle' : 'person-circle-outline'}
-            size={22}
-            color={currentTab === 'my_food' ? '#10B981' : '#94A3B8'}
-          />
-          <Text style={[styles.navItemText, currentTab === 'my_food' && styles.activeNavItemText]}>
-            My Food
-          </Text>
-        </TouchableOpacity>
+            <Ionicons
+              name={currentTab === 'my_food' ? 'person-circle' : 'person-circle-outline'}
+              size={22}
+              color={currentTab === 'my_food' ? '#10B981' : '#94A3B8'}
+            />
+            <Text style={[styles.navItemText, currentTab === 'my_food' && styles.activeNavItemText]}>
+              My Food
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* ---------------------------------------------------------------------
           MODAL: ADD NEW RECIPE (Rubric 8)
-          - Recipe name
-          - Image upload / URL
-          - Ingredients list
-          - Step-by-step instructions
-          - "Save Recipe" button
           --------------------------------------------------------------------- */}
       <Modal visible={isAddModalVisible} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.modalSafeArea}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity
-              onPress={() => setIsAddModalVisible(false)}
-              style={styles.modalHeaderCloseButton}
-            >
-              <Ionicons name="close" size={24} color="#1E293B" />
-            </TouchableOpacity>
-            <Text style={styles.modalHeaderTitle}>Add New Recipe</Text>
-            <View style={{ width: 32 }} />
-          </View>
+          <View style={[styles.responsiveContainer, isLargeScreen && styles.responsiveContainerDesktop]}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity
+                onPress={() => setIsAddModalVisible(false)}
+                style={styles.modalHeaderCloseButton}
+              >
+                <Ionicons name="close" size={24} color="#1E293B" />
+              </TouchableOpacity>
+              <Text style={styles.modalHeaderTitle}>Add New Recipe</Text>
+              <View style={{ width: 32 }} />
+            </View>
 
-          <ScrollView style={styles.modalScrollView} showsVerticalScrollIndicator={false}>
-            {/* 1. Recipe Name */}
-            <Text style={styles.inputLabel}>Recipe Name *</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="e.g. Grandma's Apple Pie"
-              placeholderTextColor="#94A3B8"
-              value={formName}
-              onChangeText={setFormName}
-            />
+            <ScrollView style={styles.modalScrollView} showsVerticalScrollIndicator={false}>
+              {/* 1. Recipe Name */}
+              <Text style={styles.inputLabel}>Recipe Name *</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="e.g. Grandma's Apple Pie"
+                placeholderTextColor="#94A3B8"
+                value={formName}
+                onChangeText={setFormName}
+              />
 
-            {/* Category selection */}
-            <Text style={styles.inputLabel}>Category</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
-              {CATEGORIES.filter((c) => c.id !== 'all' && c.id !== 'my_food').map((c) => (
-                <TouchableOpacity
-                  key={c.id}
-                  style={[
-                    styles.formCategoryPill,
-                    formCategory === c.id && styles.activeFormCategoryPill,
-                  ]}
-                  onPress={() => setFormCategory(c.id)}
-                >
-                  <Text
+              {/* Category selection */}
+              <Text style={styles.inputLabel}>Category</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
+                {CATEGORIES.filter((c) => c.id !== 'all' && c.id !== 'my_food').map((c) => (
+                  <TouchableOpacity
+                    key={c.id}
                     style={[
-                      styles.formCategoryPillText,
-                      formCategory === c.id && styles.activeFormCategoryPillText,
+                      styles.formCategoryPill,
+                      formCategory === c.id && styles.activeFormCategoryPill,
                     ]}
+                    onPress={() => setFormCategory(c.id)}
                   >
-                    {c.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.formCategoryPillText,
+                        formCategory === c.id && styles.activeFormCategoryPillText,
+                      ]}
+                    >
+                      {c.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              {/* 2. Image Upload / URL */}
+              <Text style={styles.inputLabel}>Image URL / Photo</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="https://example.com/photo.jpg"
+                placeholderTextColor="#94A3B8"
+                value={formImage}
+                onChangeText={setFormImage}
+              />
+              {formImage.length > 0 && (
+                <Image source={{ uri: formImage }} style={styles.formImagePreview} />
+              )}
+
+              {/* Metadata Fields */}
+              <View style={styles.formRow}>
+                <View style={styles.formCol}>
+                  <Text style={styles.inputLabel}>Prep Time</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formPrepTime}
+                    onChangeText={setFormPrepTime}
+                    placeholder="20 mins"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+                <View style={styles.formCol}>
+                  <Text style={styles.inputLabel}>Servings</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formServings}
+                    onChangeText={setFormServings}
+                    placeholder="4 servings"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.formRow}>
+                <View style={styles.formCol}>
+                  <Text style={styles.inputLabel}>Calories</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formCalories}
+                    onChangeText={setFormCalories}
+                    placeholder="450 kcal"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+                <View style={styles.formCol}>
+                  <Text style={styles.inputLabel}>Difficulty</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formDifficulty}
+                    onChangeText={setFormDifficulty}
+                    placeholder="Easy / Medium / Hard"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+              </View>
+
+              {/* 3. Ingredients List */}
+              <Text style={styles.inputLabel}>Ingredients List (1 per line) *</Text>
+              <TextInput
+                style={[styles.textInput, styles.textArea]}
+                placeholder="1 cup Flour&#10;2 tbsp Sugar&#10;1 tsp Salt"
+                placeholderTextColor="#94A3B8"
+                value={formIngredients}
+                onChangeText={setFormIngredients}
+                multiline
+                numberOfLines={4}
+              />
+
+              {/* 4. Step-by-Step Instructions */}
+              <Text style={styles.inputLabel}>Step-by-Step Instructions (1 per line) *</Text>
+              <TextInput
+                style={[styles.textInput, styles.textArea]}
+                placeholder="Step 1: Preheat oven to 350°F&#10;Step 2: Mix all dry ingredients&#10;Step 3: Bake for 25 minutes"
+                placeholderTextColor="#94A3B8"
+                value={formInstructions}
+                onChangeText={setFormInstructions}
+                multiline
+                numberOfLines={5}
+              />
+
+              {/* 5. Save Recipe Button */}
+              <TouchableOpacity
+                style={styles.saveRecipeButton}
+                onPress={handleSaveRecipe}
+                accessibilityLabel="Save Recipe"
+              >
+                <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.saveRecipeButtonText}>Save Recipe</Text>
+              </TouchableOpacity>
+
+              <View style={{ height: 40 }} />
             </ScrollView>
-
-            {/* 2. Image Upload / URL */}
-            <Text style={styles.inputLabel}>Image URL / Photo</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="https://example.com/photo.jpg"
-              placeholderTextColor="#94A3B8"
-              value={formImage}
-              onChangeText={setFormImage}
-            />
-            {formImage.length > 0 && (
-              <Image source={{ uri: formImage }} style={styles.formImagePreview} />
-            )}
-
-            {/* Metadata Fields */}
-            <View style={styles.formRow}>
-              <View style={styles.formCol}>
-                <Text style={styles.inputLabel}>Prep Time</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formPrepTime}
-                  onChangeText={setFormPrepTime}
-                  placeholder="20 mins"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-              <View style={styles.formCol}>
-                <Text style={styles.inputLabel}>Servings</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formServings}
-                  onChangeText={setFormServings}
-                  placeholder="4 servings"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-            </View>
-
-            <View style={styles.formRow}>
-              <View style={styles.formCol}>
-                <Text style={styles.inputLabel}>Calories</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formCalories}
-                  onChangeText={setFormCalories}
-                  placeholder="450 kcal"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-              <View style={styles.formCol}>
-                <Text style={styles.inputLabel}>Difficulty</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formDifficulty}
-                  onChangeText={setFormDifficulty}
-                  placeholder="Easy / Medium / Hard"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-            </View>
-
-            {/* 3. Ingredients List */}
-            <Text style={styles.inputLabel}>Ingredients List (1 per line) *</Text>
-            <TextInput
-              style={[styles.textInput, styles.textArea]}
-              placeholder="1 cup Flour&#10;2 tbsp Sugar&#10;1 tsp Salt"
-              placeholderTextColor="#94A3B8"
-              value={formIngredients}
-              onChangeText={setFormIngredients}
-              multiline
-              numberOfLines={4}
-            />
-
-            {/* 4. Step-by-Step Instructions */}
-            <Text style={styles.inputLabel}>Step-by-Step Instructions (1 per line) *</Text>
-            <TextInput
-              style={[styles.textInput, styles.textArea]}
-              placeholder="Step 1: Preheat oven to 350°F&#10;Step 2: Mix all dry ingredients&#10;Step 3: Bake for 25 minutes"
-              placeholderTextColor="#94A3B8"
-              value={formInstructions}
-              onChangeText={setFormInstructions}
-              multiline
-              numberOfLines={5}
-            />
-
-            {/* 5. Save Recipe Button */}
-            <TouchableOpacity
-              style={styles.saveRecipeButton}
-              onPress={handleSaveRecipe}
-              accessibilityLabel="Save Recipe"
-            >
-              <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.saveRecipeButtonText}>Save Recipe</Text>
-            </TouchableOpacity>
-
-            <View style={{ height: 40 }} />
-          </ScrollView>
+          </View>
         </SafeAreaView>
       </Modal>
 
@@ -1143,101 +1150,103 @@ export default function App() {
           --------------------------------------------------------------------- */}
       <Modal visible={isEditModalVisible} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.modalSafeArea}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity
-              onPress={() => setIsEditModalVisible(false)}
-              style={styles.modalHeaderCloseButton}
-            >
-              <Ionicons name="close" size={24} color="#1E293B" />
-            </TouchableOpacity>
-            <Text style={styles.modalHeaderTitle}>Edit Recipe</Text>
-            <View style={{ width: 32 }} />
+          <View style={[styles.responsiveContainer, isLargeScreen && styles.responsiveContainerDesktop]}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity
+                onPress={() => setIsEditModalVisible(false)}
+                style={styles.modalHeaderCloseButton}
+              >
+                <Ionicons name="close" size={24} color="#1E293B" />
+              </TouchableOpacity>
+              <Text style={styles.modalHeaderTitle}>Edit Recipe</Text>
+              <View style={{ width: 32 }} />
+            </View>
+
+            <ScrollView style={styles.modalScrollView} showsVerticalScrollIndicator={false}>
+              <Text style={styles.inputLabel}>Recipe Name</Text>
+              <TextInput
+                style={styles.textInput}
+                value={formName}
+                onChangeText={setFormName}
+              />
+
+              <Text style={styles.inputLabel}>Image URL</Text>
+              <TextInput
+                style={styles.textInput}
+                value={formImage}
+                onChangeText={setFormImage}
+              />
+              {formImage.length > 0 && (
+                <Image source={{ uri: formImage }} style={styles.formImagePreview} />
+              )}
+
+              <View style={styles.formRow}>
+                <View style={styles.formCol}>
+                  <Text style={styles.inputLabel}>Prep Time</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formPrepTime}
+                    onChangeText={setFormPrepTime}
+                  />
+                </View>
+                <View style={styles.formCol}>
+                  <Text style={styles.inputLabel}>Servings</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formServings}
+                    onChangeText={setFormServings}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.formRow}>
+                <View style={styles.formCol}>
+                  <Text style={styles.inputLabel}>Calories</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formCalories}
+                    onChangeText={setFormCalories}
+                  />
+                </View>
+                <View style={styles.formCol}>
+                  <Text style={styles.inputLabel}>Difficulty</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={formDifficulty}
+                    onChangeText={setFormDifficulty}
+                  />
+                </View>
+              </View>
+
+              <Text style={styles.inputLabel}>Ingredients (1 per line)</Text>
+              <TextInput
+                style={[styles.textInput, styles.textArea]}
+                value={formIngredients}
+                onChangeText={setFormIngredients}
+                multiline
+                numberOfLines={4}
+              />
+
+              <Text style={styles.inputLabel}>Step-by-Step Instructions (1 per line)</Text>
+              <TextInput
+                style={[styles.textInput, styles.textArea]}
+                value={formInstructions}
+                onChangeText={setFormInstructions}
+                multiline
+                numberOfLines={5}
+              />
+
+              <TouchableOpacity
+                style={styles.saveRecipeButton}
+                onPress={handleUpdateRecipe}
+              >
+                <Ionicons name="save-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                <Text style={styles.saveRecipeButtonText}>Update Recipe</Text>
+              </TouchableOpacity>
+
+              <View style={{ height: 40 }} />
+            </ScrollView>
           </View>
-
-          <ScrollView style={styles.modalScrollView} showsVerticalScrollIndicator={false}>
-            <Text style={styles.inputLabel}>Recipe Name</Text>
-            <TextInput
-              style={styles.textInput}
-              value={formName}
-              onChangeText={setFormName}
-            />
-
-            <Text style={styles.inputLabel}>Image URL</Text>
-            <TextInput
-              style={styles.textInput}
-              value={formImage}
-              onChangeText={setFormImage}
-            />
-            {formImage.length > 0 && (
-              <Image source={{ uri: formImage }} style={styles.formImagePreview} />
-            )}
-
-            <View style={styles.formRow}>
-              <View style={styles.formCol}>
-                <Text style={styles.inputLabel}>Prep Time</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formPrepTime}
-                  onChangeText={setFormPrepTime}
-                />
-              </View>
-              <View style={styles.formCol}>
-                <Text style={styles.inputLabel}>Servings</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formServings}
-                  onChangeText={setFormServings}
-                />
-              </View>
-            </View>
-
-            <View style={styles.formRow}>
-              <View style={styles.formCol}>
-                <Text style={styles.inputLabel}>Calories</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formCalories}
-                  onChangeText={setFormCalories}
-                />
-              </View>
-              <View style={styles.formCol}>
-                <Text style={styles.inputLabel}>Difficulty</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formDifficulty}
-                  onChangeText={setFormDifficulty}
-                />
-              </View>
-            </View>
-
-            <Text style={styles.inputLabel}>Ingredients (1 per line)</Text>
-            <TextInput
-              style={[styles.textInput, styles.textArea]}
-              value={formIngredients}
-              onChangeText={setFormIngredients}
-              multiline
-              numberOfLines={4}
-            />
-
-            <Text style={styles.inputLabel}>Step-by-Step Instructions (1 per line)</Text>
-            <TextInput
-              style={[styles.textInput, styles.textArea]}
-              value={formInstructions}
-              onChangeText={setFormInstructions}
-              multiline
-              numberOfLines={5}
-            />
-
-            <TouchableOpacity
-              style={styles.saveRecipeButton}
-              onPress={handleUpdateRecipe}
-            >
-              <Ionicons name="save-outline" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.saveRecipeButtonText}>Update Recipe</Text>
-            </TouchableOpacity>
-
-            <View style={{ height: 40 }} />
-          </ScrollView>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
@@ -1250,7 +1259,23 @@ export default function App() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#0F172A', // Dark neutral background for sides on wide/desktop screens
+  },
+  responsiveContainer: {
+    flex: 1,
+    width: '100%',
     backgroundColor: '#F8FAFC',
+  },
+  responsiveContainerDesktop: {
+    maxWidth: 620,
+    alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#E2E8F0',
   },
   fullFlex: {
     flex: 1,
@@ -1368,7 +1393,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
 
-  // Recipe Card
+  // Recipe Card (Responsive 16:9 Image)
   recipeCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
@@ -1384,8 +1409,9 @@ const styles = StyleSheet.create({
   },
   recipeCardImage: {
     width: '100%',
-    height: 180,
+    aspectRatio: 16 / 9,
     backgroundColor: '#E2E8F0',
+    resizeMode: 'cover',
   },
   cardHeartButton: {
     position: 'absolute',
@@ -1490,8 +1516,8 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   myRecipeImage: {
-    width: 80,
-    height: 80,
+    width: 76,
+    height: 76,
     borderRadius: 10,
     backgroundColor: '#E2E8F0',
   },
@@ -1626,8 +1652,9 @@ const styles = StyleSheet.create({
   },
   detailHeroImage: {
     width: '100%',
-    height: 240,
+    aspectRatio: 16 / 10,
     backgroundColor: '#E2E8F0',
+    resizeMode: 'cover',
   },
   detailContentContainer: {
     padding: 16,
@@ -1657,11 +1684,14 @@ const styles = StyleSheet.create({
     color: '#059669',
   },
 
-  // Rubric 3 Stats Grid
+  // Responsive Stats Grid (Rubric 3)
   statsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
+  },
+  statsGridNarrow: {
+    flexWrap: 'wrap',
   },
   statCard: {
     flex: 1,
@@ -1672,6 +1702,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+  },
+  statCardNarrow: {
+    flex: undefined,
+    width: '48%',
+    marginBottom: 8,
+    marginHorizontal: '1%',
   },
   statLabel: {
     fontSize: 10,
@@ -1801,7 +1837,7 @@ const styles = StyleSheet.create({
   // Modal Styles (Rubric 8 & 11)
   modalSafeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#0F172A',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -1811,6 +1847,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
+    backgroundColor: '#FFFFFF',
   },
   modalHeaderCloseButton: {
     padding: 4,
@@ -1823,6 +1860,7 @@ const styles = StyleSheet.create({
   modalScrollView: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#F8FAFC',
   },
   inputLabel: {
     fontSize: 13,
@@ -1832,7 +1870,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   textInput: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     borderRadius: 10,
@@ -1873,7 +1911,7 @@ const styles = StyleSheet.create({
   },
   formImagePreview: {
     width: '100%',
-    height: 140,
+    aspectRatio: 16 / 9,
     borderRadius: 10,
     marginBottom: 12,
     backgroundColor: '#E2E8F0',
@@ -1893,4 +1931,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
